@@ -15,10 +15,16 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
     [SerializeField] private int stepCountEachSide = 4;
     [SerializeField] private BetweenInt rulesetVariation = new BetweenInt(1, 3);
     [SerializeField] private Transform[] foodstuffs;
+    [SerializeField] private float fruitEatingTime = 1f;
+    [SerializeField] private EaseType fruitEatingEase = EaseType.Linear;
+    [SerializeField] private float displaySliderSpeed = 1f;
 
     public Gradient StateColorDisplayRange { get { return stateColorDisplayRange; } }
     public int FoodstuffCount { get { return foodstuffs.Length; } }
     public int StepCountEachSide { get { return stepCountEachSide; } }
+    public float FruitEatingTime { get { return fruitEatingTime; } }
+    public EaseType FruitEatingEase { get { return fruitEatingEase; } }
+    public float DisplaySliderSpeed { get { return displaySliderSpeed; } }
 
     private int[][] ruleset;
 
@@ -119,6 +125,17 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         if (GameOver)
             return;
 
+        var originalFoodstuff = foodstuffs[foodstuffIndex];
+        var targetPosition = playerDisplays[player.Index].FoodstuffTargetPosition;
+        var fruitCopy = UnityHelper.InstantiatePrefab(originalFoodstuff);
+        fruitCopy.transform.SetParent(originalFoodstuff.parent);
+        fruitCopy.gameObject.GetComponent<RectTransform>().position = originalFoodstuff.gameObject.GetComponent<RectTransform>().position;
+        var eatingAnimation = fruitCopy.gameObject.AddComponent<FoodstuffEatingAnimation>();
+        eatingAnimation.Initialize(player, foodstuffIndex, targetPosition);
+    }
+
+    public void ApplyValues(Player player, int foodstuffIndex)
+    {
         player.ChangeValues(ruleset[foodstuffIndex]);
 
         if (player.AllValuesZero)

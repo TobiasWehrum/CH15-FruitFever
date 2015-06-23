@@ -12,6 +12,13 @@ public class PlayerDisplay : MonoBehaviourBase
 
     private GameManager gameManager;
     private Image[] colorAreas;
+    private float[] targetValues;
+    private bool initialized;
+
+    public Vector3 FoodstuffTargetPosition
+    {
+        get { return GetComponent<RectTransform>().position; }
+    }
 
     private void Awake()
     {
@@ -23,6 +30,8 @@ public class PlayerDisplay : MonoBehaviourBase
             colorAreas[i] = sliders[i].fillRect.GetComponentInChildren<Image>();
         }
 
+        targetValues = new float[sliders.Length];
+
         playerWonDisplay.SetActive(false);
     }
 
@@ -31,8 +40,23 @@ public class PlayerDisplay : MonoBehaviourBase
         for (var i = 0; i < sliders.Length; i++)
         {
             var value = Mathf.InverseLerp(-gameManager.StepCountEachSide, gameManager.StepCountEachSide, values[i]);
-            sliders[i].value = value;
-            colorAreas[i].color = gameManager.StateColorDisplayRange.Evaluate(value);
+            targetValues[i] = value;
+
+            if (!initialized)
+            {
+                sliders[i].value = targetValues[i];
+                colorAreas[i].color = gameManager.StateColorDisplayRange.Evaluate(value);
+            }
+        }
+        initialized = true;
+    }
+
+    public void Update()
+    {
+        for (var i = 0; i < sliders.Length; i++)
+        {
+            sliders[i].value = Mathf.MoveTowards(sliders[i].value, targetValues[i], gameManager.DisplaySliderSpeed);
+            colorAreas[i].color = gameManager.StateColorDisplayRange.Evaluate(sliders[i].value);
         }
     }
 
