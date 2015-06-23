@@ -129,7 +129,10 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         var targetPosition = playerDisplays[player.Index].FoodstuffTargetPosition;
         var fruitCopy = UnityHelper.InstantiatePrefab(originalFoodstuff);
         fruitCopy.transform.SetParent(originalFoodstuff.parent);
-        fruitCopy.gameObject.GetComponent<RectTransform>().position = originalFoodstuff.gameObject.GetComponent<RectTransform>().position;
+        var fruitCopyRect = fruitCopy.gameObject.GetComponent<RectTransform>();
+        var originalRect = originalFoodstuff.gameObject.GetComponent<RectTransform>();
+        fruitCopyRect.position = originalRect.position;
+        fruitCopy.localScale = originalRect.localScale;
         var eatingAnimation = fruitCopy.gameObject.AddComponent<FoodstuffEatingAnimation>();
         eatingAnimation.Initialize(player, foodstuffIndex, targetPosition);
     }
