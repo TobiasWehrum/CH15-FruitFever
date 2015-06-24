@@ -27,11 +27,14 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
     public float DisplaySliderSpeed { get { return displaySliderSpeed; } }
 
     private int[][] ruleset;
+    private SfxManager sfxManager;
 
     public bool GameOver { get; private set; }
 
     private void Awake()
     {
+        sfxManager = SfxManager.Instance;
+
         var startValues = new int[stateCount];
         for (var i = 0; i < startValues.Length; i++)
         {
@@ -57,6 +60,11 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         if (Input.GetKeyDown(KeyCode.Space))
         {
             Application.LoadLevel(Application.loadedLevel);
+        }
+
+        if (Input.GetKeyDown(KeyCode.A))
+        {
+            sfxManager.PlayCheckSide();
         }
     }
 
@@ -135,10 +143,14 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         fruitCopy.localScale = originalRect.localScale;
         var eatingAnimation = fruitCopy.gameObject.AddComponent<FoodstuffEatingAnimation>();
         eatingAnimation.Initialize(player, foodstuffIndex, targetPosition);
+
+        sfxManager.PlayFoodTaken(player);
     }
 
     public void ApplyValues(Player player, int foodstuffIndex)
     {
+        sfxManager.PlayFoodEaten(player);
+
         player.ChangeValues(ruleset[foodstuffIndex]);
 
         if (player.AllValuesZero)
@@ -149,7 +161,12 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
 
     private void SetGameOver(Player player)
     {
+        if (GameOver)
+            return;
+
         playerDisplays[player.Index].Won();
         GameOver = true;
+
+        sfxManager.PlayGameOver();
     }
 }
