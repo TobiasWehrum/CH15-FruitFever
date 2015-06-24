@@ -83,7 +83,7 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
             availableValues[i] = valuesForState;
 
             var sign = MathUtil.RandomSign;
-            if (Random.value < 0.5)
+            if ((Random.value < 0.5) || (rulesetVariation.Range <= 1))
             {
                 valuesForState.Add(1 * sign);
                 valuesForState.Add(rulesetVariation.RandomInclusive * -sign);

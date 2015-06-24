@@ -27,6 +27,9 @@ public class PlayerDisplay : MonoBehaviourBase
     {
         for (var i = 0; i < outputs.Length; i++)
         {
+            if (outputs[i] == null)
+                continue;
+
             var value = Mathf.InverseLerp(-gameManager.StepCountEachSide, gameManager.StepCountEachSide, values[i]);
             outputs[i].SetValue(value);
         }
