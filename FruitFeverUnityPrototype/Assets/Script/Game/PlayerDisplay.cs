@@ -9,8 +9,11 @@ public class PlayerDisplay : MonoBehaviourBase
 {
     [SerializeField] private StateOutput[] outputs;
     [SerializeField] private GameObject playerWonDisplay;
+    [SerializeField] private Text fruitsEatenDisplay;
 
     private GameManager gameManager;
+    private int fruitsEaten;
+    private string fruitsEatenFormatString;
 
     public Vector3 FoodstuffTargetPosition
     {
@@ -21,6 +24,9 @@ public class PlayerDisplay : MonoBehaviourBase
     {
         gameManager = GameManager.Instance;
         playerWonDisplay.SetActive(false);
+
+        fruitsEatenFormatString = fruitsEatenDisplay.text;
+        RefreshFruitsEatenDisplay();
     }
 
     public void Refresh(int[] values)
@@ -38,5 +44,18 @@ public class PlayerDisplay : MonoBehaviourBase
     public void Won()
     {
         playerWonDisplay.SetActive(true);
+
+        Debug.Log("Winning player fruits eaten: " + fruitsEaten);
+    }
+
+    public void FruitEaten()
+    {
+        fruitsEaten++;
+        RefreshFruitsEatenDisplay();
+    }
+
+    private void RefreshFruitsEatenDisplay()
+    {
+        fruitsEatenDisplay.text = String.Format(fruitsEatenFormatString, fruitsEaten);
     }
 }

@@ -6,9 +6,10 @@ public class Player : MonoBehaviour
 {
     private int[] values;
     public int Index;
-    private PlayerDisplay display;
     private string[] buttons;
     private GameManager gameManager;
+
+    public PlayerDisplay Display { get; private set; }
 
     public bool AllValuesZero
     {
@@ -18,7 +19,7 @@ public class Player : MonoBehaviour
     public void Initialize(int index, int[] startValues, PlayerDisplay display)
     {
         this.Index = index;
-        this.display = display;
+        this.Display = display;
         values = (int[]) startValues.Clone();
 
         gameManager = GameManager.Instance;
@@ -47,7 +48,7 @@ public class Player : MonoBehaviour
 
     private void RefreshDisplay()
     {
-        display.Refresh(values);
+        Display.Refresh(values);
     }
 
     public void ChangeValues(int[] add)

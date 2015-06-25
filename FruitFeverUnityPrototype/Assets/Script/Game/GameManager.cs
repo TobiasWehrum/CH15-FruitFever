@@ -18,6 +18,8 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
     [SerializeField] private float fruitEatingTime = 1f;
     [SerializeField] private EaseType fruitEatingEase = EaseType.Linear;
     [SerializeField] private float displaySliderSpeed = 1f;
+    [SerializeField] private GameObject pressToRestart;
+    [SerializeField] private bool debugPrintRuleset = false;
 
     public Gradient StateColorDisplayRange { get { return stateColorDisplayRange; } }
     public int FoodstuffCount { get { return foodstuffs.Length; } }
@@ -34,6 +36,8 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
     private void Awake()
     {
         sfxManager = SfxManager.Instance;
+
+        pressToRestart.SetActive(false);
 
         var startValues = new int[stateCount];
         for (var i = 0; i < startValues.Length; i++)
@@ -115,7 +119,8 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
 
         ruleset.Shuffle();
 
-        DebugPrintRuleset();
+        if (debugPrintRuleset)
+            DebugPrintRuleset();
     }
 
     private void DebugPrintRuleset()
@@ -153,6 +158,8 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
 
         player.ChangeValues(ruleset[foodstuffIndex]);
 
+        player.Display.FruitEaten();
+
         if (player.AllValuesZero)
         {
             SetGameOver(player);
@@ -164,8 +171,10 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         if (GameOver)
             return;
 
-        playerDisplays[player.Index].Won();
+        player.Display.Won();
         GameOver = true;
+
+        pressToRestart.SetActive(true);
 
         sfxManager.PlayGameOver();
     }
