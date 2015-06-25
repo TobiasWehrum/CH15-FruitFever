@@ -10,7 +10,6 @@ public class SfxManagerBase<T> : SingletonMonoBehaviour<T> where T : SfxManagerB
     [SerializeField] private int startOneShotAudioSources = 1;
     [SerializeField] private float globalVolumeMultiplier = 0.1f;
     [SerializeField] private float defaultSoundCooldown = 0.1f;
-    [SerializeField] private float panMax = 0.5f;
 
     private AudioListener audioListener;
 
