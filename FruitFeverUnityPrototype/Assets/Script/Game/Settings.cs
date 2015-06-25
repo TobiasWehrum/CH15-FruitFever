@@ -12,7 +12,7 @@ public class Settings : PersistentSingletonMonoBehaviour<Settings>
     [SerializeField] private bool saveSettings;
     [SerializeField] private bool sfx;
     [SerializeField] private bool music;
-    [SerializeField] private int difficulty = 2;
+    [SerializeField] private int difficulty = 3;
 
     protected override void OnFirstLoadOrSwitch()
     {
