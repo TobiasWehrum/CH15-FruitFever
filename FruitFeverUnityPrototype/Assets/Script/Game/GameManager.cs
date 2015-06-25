@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using System.Collections;
+using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
 public class GameManager : SingletonMonoBehaviour<GameManager>
@@ -12,7 +13,6 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
     [SerializeField] private int stateCount = 3;
     [SerializeField] private Gradient stateColorDisplayRange;
     [SerializeField] private string[] rulesetTemplates;
-    [SerializeField] private int stepCountEachSide = 4;
     [SerializeField] private BetweenInt rulesetVariation = new BetweenInt(1, 3);
     [SerializeField] private Transform[] foodstuffs;
     [SerializeField] private float fruitEatingTime = 1f;
@@ -20,15 +20,17 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
     [SerializeField] private float displaySliderSpeed = 1f;
     [SerializeField] private GameObject pressToRestart;
     [SerializeField] private bool debugPrintRuleset = false;
+    [SerializeField] private Text difficultyDisplay;
 
     public Gradient StateColorDisplayRange { get { return stateColorDisplayRange; } }
     public int FoodstuffCount { get { return foodstuffs.Length; } }
-    public int StepCountEachSide { get { return stepCountEachSide; } }
+    public int StepCountEachSide { get { return settings.Difficulty; } }
     public float FruitEatingTime { get { return fruitEatingTime; } }
     public EaseType FruitEatingEase { get { return fruitEatingEase; } }
     public float DisplaySliderSpeed { get { return displaySliderSpeed; } }
 
     private int[][] ruleset;
+    private Settings settings;
     private SfxManager sfxManager;
 
     public bool GameOver { get; private set; }
@@ -36,14 +38,22 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
     private void Awake()
     {
         sfxManager = SfxManager.Instance;
+        settings = Settings.Instance;
+
+        Debug.Log(settings);
+        difficultyDisplay.text = String.Format(difficultyDisplay.text, settings.Difficulty);
 
         pressToRestart.SetActive(false);
 
         var startValues = new int[stateCount];
-        for (var i = 0; i < startValues.Length; i++)
+        do
         {
-            startValues[i] = Random.Range(-stepCountEachSide, stepCountEachSide);
+            for (var i = 0; i < startValues.Length; i++)
+            {
+                startValues[i] = Random.Range(-StepCountEachSide, StepCountEachSide);
+            }
         }
+        while (startValues.All(value => value == 0));
 
         for (var i = 0; i < playerDisplays.Length; i++)
         {
@@ -52,6 +62,16 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         }
 
         UseRulesetTemplate(rulesetTemplates.RandomElement());
+    }
+
+    private void OnEnable()
+    {
+        settings.EventDifficultyChanged += OnDifficultyChanged;
+    }
+
+    private void OnDisable()
+    {
+        settings.EventDifficultyChanged -= OnDifficultyChanged;
     }
 
     private void Update()
@@ -63,7 +83,7 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
 
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            Application.LoadLevel(Application.loadedLevel);
+            Restart();
         }
 
         if (Input.GetKeyDown(KeyCode.A))
@@ -177,5 +197,15 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         pressToRestart.SetActive(true);
 
         sfxManager.PlayGameOver();
+    }
+
+    private void OnDifficultyChanged(int newDifficulty)
+    {
+        Restart();
+    }
+
+    private void Restart()
+    {
+        Application.LoadLevel(Application.loadedLevel);
     }
 }

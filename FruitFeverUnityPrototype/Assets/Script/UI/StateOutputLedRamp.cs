@@ -25,7 +25,9 @@ public class StateOutputLedRamp : StateOutput
             image.color = color;
         }
 
-        var amount = 1 + Mathf.FloorToInt((images.Length - 1) * value);
+        var maxValue = Mathf.Min(Settings.Instance.Difficulty * 2 + 1, images.Length);
+
+        var amount = 1 + Mathf.FloorToInt((maxValue - 1) * value);
         for (var i = 0; i < images.Length; i++)
         {
             images[i].enabled = i < amount;
