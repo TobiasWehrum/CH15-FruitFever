@@ -104,7 +104,7 @@ public class ArduinoInput : MonoBehaviourBase
             // ...to no fruit
             if (to == 0)
             {
-                FruitEaten(to);
+                FruitEaten(from);
             }
             // ...to another fruit (everything but 0..4 had already returned)
             else
@@ -143,14 +143,15 @@ public class ArduinoInput : MonoBehaviourBase
     {
         while (true)
         {
-            lock (this)
-            {
-                var line = stream.ReadLine();
-                if (line.Length <= 0)
-                    continue;
+            Thread.Sleep(0);
+            var line = stream.ReadLine();
+            if (line.Length <= 0)
+                continue;
 
-                int newNumber;
-                if (int.TryParse(line, out newNumber))
+            int newNumber;
+            if (int.TryParse(line, out newNumber))
+            {
+                lock (this)
                 {
                     readNumber = newNumber;
                     dataUpdated = true;
