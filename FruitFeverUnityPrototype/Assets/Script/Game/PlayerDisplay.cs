@@ -10,6 +10,7 @@ public class PlayerDisplay : MonoBehaviourBase
     [SerializeField] private StateOutput[] outputs;
     [SerializeField] private GameObject playerWonDisplay;
     [SerializeField] private Text fruitsEatenDisplay;
+    [SerializeField] private GameObject signalObject;
 
     private GameManager gameManager;
     private int fruitsEaten;
@@ -20,6 +21,12 @@ public class PlayerDisplay : MonoBehaviourBase
         get { return GetComponent<RectTransform>().position; }
     }
 
+    public bool Signal
+    {
+        get { return signalObject.activeSelf; }
+        set { signalObject.SetActive(value); }
+    }
+
     private void Awake()
     {
         gameManager = GameManager.Instance;
@@ -27,6 +34,8 @@ public class PlayerDisplay : MonoBehaviourBase
 
         fruitsEatenFormatString = fruitsEatenDisplay.text;
         RefreshFruitsEatenDisplay();
+
+        Signal = false;
     }
 
     public void Refresh(int[] values)
@@ -58,4 +67,6 @@ public class PlayerDisplay : MonoBehaviourBase
     {
         fruitsEatenDisplay.text = String.Format(fruitsEatenFormatString, fruitsEaten);
     }
+
+    
 }

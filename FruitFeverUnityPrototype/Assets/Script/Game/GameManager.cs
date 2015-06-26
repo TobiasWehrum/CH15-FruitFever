@@ -34,13 +34,13 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
     private SfxManager sfxManager;
 
     public bool GameOver { get; private set; }
+    public Player[] Players { get; private set; }
 
     private void Awake()
     {
         sfxManager = SfxManager.Instance;
         settings = Settings.Instance;
 
-        Debug.Log(settings);
         difficultyDisplay.text = String.Format(difficultyDisplay.text, settings.Difficulty);
 
         pressToRestart.SetActive(false);
@@ -55,10 +55,13 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         }
         while (startValues.All(value => value == 0));
 
+        Players = new Player[playerDisplays.Length];
         for (var i = 0; i < playerDisplays.Length; i++)
         {
             var player = UnityHelper.InstantiatePrefab(playerPrefab);
             player.Initialize(i, startValues, playerDisplays[i]);
+
+            Players[i] = player;
         }
 
         UseRulesetTemplate(rulesetTemplates.RandomElement());
