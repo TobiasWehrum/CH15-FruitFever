@@ -23,6 +23,7 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
     [SerializeField] private Text difficultyDisplay;
     [SerializeField] private Canvas canvas;
     [SerializeField] private EffectDisplayRow effectDisplayRowPrefab;
+    [SerializeField] private EffectDisplayRow effectDisplayRowEmptyPrefab;
     [SerializeField] private Sprite[] symbolsSliders;
     [SerializeField] private Sprite symbolArrowUp;
     [SerializeField] private Sprite symbolArrowDown;
@@ -81,8 +82,7 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
 
         for (var i = 0; i < foodstuffs.Length; i++)
         {
-            if (showTransparency[i])
-                DisplayEffect(foodstuffs[i], ruleset[i]);
+            DisplayEffect(foodstuffs[i], ruleset[i], showTransparency[i]);
         }
     }
 
@@ -238,28 +238,39 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         Application.LoadLevel(Application.loadedLevel);
     }
 
-    private void DisplayEffect(Transform foodstuff, int[] rules)
+    private void DisplayEffect(Transform foodstuff, int[] rules, bool show)
     {
         var rectTransform = foodstuff.GetComponent<RectTransform>();
         var xPosition = rectTransform.anchoredPosition.x + rectTransform.rect.center.x;
         var yPosition = rectTransform.anchoredPosition.y + rectTransform.rect.yMin;
 
-        for (int i = 0; i < rules.Length; i++)
+        if (show)
         {
-            var value = rules[i];
-            if (value == 0)
-                continue;
+            for (int i = 0; i < rules.Length; i++)
+            {
+                var value = rules[i];
+                if (value == 0)
+                    continue;
 
-            var display = UnityHelper.InstantiatePrefab(effectDisplayRowPrefab);
+                var display = UnityHelper.InstantiatePrefab(effectDisplayRowPrefab);
+                var displayRectTransform = display.GetComponent<RectTransform>();
+                displayRectTransform.SetParent(foodstuff.parent.transform);
+                displayRectTransform.localScale = Vector3.one;
+                displayRectTransform.anchoredPosition = new Vector2(xPosition, yPosition);
+
+                yPosition -= displayRectTransform.rect.height;
+
+                display.ArrowSprite = (value == 1) ? symbolArrowUp : symbolArrowDown;
+                display.SymbolSprite = symbolsSliders[i];
+            }
+        }
+        else
+        {
+            var display = UnityHelper.InstantiatePrefab(effectDisplayRowEmptyPrefab);
             var displayRectTransform = display.GetComponent<RectTransform>();
             displayRectTransform.SetParent(foodstuff.parent.transform);
             displayRectTransform.localScale = Vector3.one;
             displayRectTransform.anchoredPosition = new Vector2(xPosition, yPosition);
-
-            yPosition -= displayRectTransform.rect.height;
-
-            display.ArrowSprite = (value == 1) ? symbolArrowUp : symbolArrowDown;
-            display.SymbolSprite = symbolsSliders[i];
         }
     }
 }
