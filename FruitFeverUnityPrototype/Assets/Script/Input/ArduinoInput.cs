@@ -26,6 +26,8 @@ public class ArduinoInput : MonoBehaviourBase
     private SerialPort stream;
     private Thread thread;
 
+    private bool quit = false;
+
     private void Awake()
     {
         //Debug.Log(SerialPort.GetPortNames().ToOneLineString());
@@ -37,6 +39,7 @@ public class ArduinoInput : MonoBehaviourBase
 
     private void OnEnable()
     {
+        quit = false;
         try
         {
             stream.Open();
@@ -53,6 +56,7 @@ public class ArduinoInput : MonoBehaviourBase
 
     private void OnDisable()
     {
+        quit = true;
         stream.Close();
         thread.Abort();
     }
@@ -141,7 +145,7 @@ public class ArduinoInput : MonoBehaviourBase
 
     private void ReadDataThread()
     {
-        while (true)
+        while (!quit)
         {
             Thread.Sleep(0);
             var line = stream.ReadLine();
