@@ -21,10 +21,15 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
     [SerializeField] private GameObject pressToRestart;
     [SerializeField] private bool debugPrintRuleset = false;
     [SerializeField] private Text difficultyDisplay;
+    [SerializeField] private Canvas canvas;
+    [SerializeField] private EffectDisplayRow effectDisplayRowPrefab;
+    [SerializeField] private Sprite[] symbolsSliders;
+    [SerializeField] private Sprite symbolArrowUp;
+    [SerializeField] private Sprite symbolArrowDown;
 
     public Gradient StateColorDisplayRange { get { return stateColorDisplayRange; } }
     public int FoodstuffCount { get { return foodstuffs.Length; } }
-    public int StepCountEachSide { get { return settings.Difficulty; } }
+    public int StepCountEachSide { get { return settings.Amplitude; } }
     public float FruitEatingTime { get { return fruitEatingTime; } }
     public EaseType FruitEatingEase { get { return fruitEatingEase; } }
     public float DisplaySliderSpeed { get { return displaySliderSpeed; } }
@@ -41,7 +46,7 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         sfxManager = SfxManager.Instance;
         settings = Settings.Instance;
 
-        difficultyDisplay.text = String.Format(difficultyDisplay.text, settings.Difficulty);
+        difficultyDisplay.text = String.Format(difficultyDisplay.text, settings.Amplitude);
 
         pressToRestart.SetActive(false);
 
@@ -65,16 +70,32 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         }
 
         UseRulesetTemplate(rulesetTemplates.RandomElement());
+
+        var showTransparency = new bool[foodstuffs.Length];
+        for (var i = 0; i < settings.Transparency; i++)
+        {
+            showTransparency[i] = true;
+        }
+
+        showTransparency.Shuffle();
+
+        for (var i = 0; i < foodstuffs.Length; i++)
+        {
+            if (showTransparency[i])
+                DisplayEffect(foodstuffs[i], ruleset[i]);
+        }
     }
 
     private void OnEnable()
     {
-        settings.EventDifficultyChanged += OnDifficultyChanged;
+        settings.EventAmplitudeChanged += OnAmplitudeChanged;
+        settings.EventTransparencyChanged += OnTransparencyChanged;
     }
 
     private void OnDisable()
     {
-        settings.EventDifficultyChanged -= OnDifficultyChanged;
+        settings.EventAmplitudeChanged -= OnAmplitudeChanged;
+        settings.EventTransparencyChanged -= OnTransparencyChanged;
     }
 
     private void Update()
@@ -202,7 +223,12 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         sfxManager.PlayGameOver();
     }
 
-    private void OnDifficultyChanged(int newDifficulty)
+    private void OnAmplitudeChanged(int newDifficulty)
+    {
+        Restart();
+    }
+
+    private void OnTransparencyChanged(int newDifficulty)
     {
         Restart();
     }
@@ -210,5 +236,30 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
     private void Restart()
     {
         Application.LoadLevel(Application.loadedLevel);
+    }
+
+    private void DisplayEffect(Transform foodstuff, int[] rules)
+    {
+        var rectTransform = foodstuff.GetComponent<RectTransform>();
+        var xPosition = rectTransform.anchoredPosition.x + rectTransform.rect.center.x;
+        var yPosition = rectTransform.anchoredPosition.y + rectTransform.rect.yMin;
+
+        for (int i = 0; i < rules.Length; i++)
+        {
+            var value = rules[i];
+            if (value == 0)
+                continue;
+
+            var display = UnityHelper.InstantiatePrefab(effectDisplayRowPrefab);
+            var displayRectTransform = display.GetComponent<RectTransform>();
+            displayRectTransform.SetParent(foodstuff.parent.transform);
+            displayRectTransform.localScale = Vector3.one;
+            displayRectTransform.anchoredPosition = new Vector2(xPosition, yPosition);
+
+            yPosition -= displayRectTransform.rect.height;
+
+            display.ArrowSprite = (value == 1) ? symbolArrowUp : symbolArrowDown;
+            display.SymbolSprite = symbolsSliders[i];
+        }
     }
 }

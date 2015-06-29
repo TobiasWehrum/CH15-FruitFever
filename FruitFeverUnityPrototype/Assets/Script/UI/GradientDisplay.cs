@@ -22,12 +22,15 @@ public class GradientDisplay : MonoBehaviourBase
 
         var gradient = GameManager.Instance.StateColorDisplayRange;
 
+        var stepCount = Settings.Instance.Amplitude * 2 + 1;
+
         texture = new Texture2D(textureWidth, textureHeight, TextureFormat.ARGB32, false, false);
         var colors = new Color[textureWidth * textureHeight];
         for (var x = 0; x < textureWidth; x++)
         {
             //var color = gradient.Evaluate(Mathf.Clamp((float) x / (textureWidth - 1), cutoffValues.From, cutoffValues.To));
-            var color = gradient.Evaluate((float) x / (textureWidth - 1));
+            var t = (float) x / textureWidth;
+            var color = gradient.Evaluate((Mathf.FloorToInt(t * stepCount) + 0.5f) / stepCount);
             for (var y = 0; y < textureHeight; y++)
             {
                 colors[x + y * textureWidth] = color;

@@ -34,6 +34,7 @@ public class SfxManager : SfxManagerBase<SfxManager>
 
     private float PanByPlayer(Player player)
     {
-        return (player.Index == 0) ? -pan : pan;
+        return 0f;
+        //return (player.Index == 0) ? -pan : pan;
     }
 }

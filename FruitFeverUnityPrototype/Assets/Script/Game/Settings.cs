@@ -7,12 +7,14 @@ public class Settings : PersistentSingletonMonoBehaviour<Settings>
 {
     public event Action<bool> EventMusicChanged;
     public event Action<bool> EventSfxChanged;
-    public event Action<int> EventDifficultyChanged;
+    public event Action<int> EventAmplitudeChanged;
+    public event Action<int> EventTransparencyChanged;
 
     [SerializeField] private bool saveSettings;
     [SerializeField] private bool sfx;
     [SerializeField] private bool music;
-    [SerializeField] private int difficulty = 3;
+    [SerializeField] private int amplitude = 3;
+    [SerializeField] private int transparency = 4;
 
     protected override void OnFirstLoadOrSwitch()
     {
@@ -20,7 +22,8 @@ public class Settings : PersistentSingletonMonoBehaviour<Settings>
         {
             sfx = UnityHelper.PlayerPrefsGetBool("Sfx", Sfx);
             music = UnityHelper.PlayerPrefsGetBool("Music", Music);
-            difficulty = PlayerPrefs.GetInt("Difficulty", Difficulty);
+            amplitude = PlayerPrefs.GetInt("Amplitude", Amplitude);
+            transparency = PlayerPrefs.GetInt("Transparency", Transparency);
         }
     }
 
@@ -36,6 +39,13 @@ public class Settings : PersistentSingletonMonoBehaviour<Settings>
             Music = !Music;
         }
 
+        if (Input.GetKeyDown(KeyCode.T))
+        {
+            Transparency = Transparency - 1;
+            if (Transparency == -1)
+                Transparency = 4;
+        }
+
         if (Input.GetKeyDown(KeyCode.F))
         {
             Screen.fullScreen = !Screen.fullScreen;
@@ -43,39 +53,39 @@ public class Settings : PersistentSingletonMonoBehaviour<Settings>
 
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
-            Difficulty = 1;
+            Amplitude = 1;
         }
         else if (Input.GetKeyDown(KeyCode.Alpha2))
         {
-            Difficulty = 2;
+            Amplitude = 2;
         }
         else if (Input.GetKeyDown(KeyCode.Alpha3))
         {
-            Difficulty = 3;
+            Amplitude = 3;
         }
         else if (Input.GetKeyDown(KeyCode.Alpha4))
         {
-            Difficulty = 4;
+            Amplitude = 4;
         }
         else if (Input.GetKeyDown(KeyCode.Alpha5))
         {
-            Difficulty = 5;
+            Amplitude = 5;
         }
         else if (Input.GetKeyDown(KeyCode.Alpha6))
         {
-            Difficulty = 6;
+            Amplitude = 6;
         }
         else if (Input.GetKeyDown(KeyCode.Alpha7))
         {
-            Difficulty = 7;
+            Amplitude = 7;
         }
         else if (Input.GetKeyDown(KeyCode.Alpha8))
         {
-            Difficulty = 8;
+            Amplitude = 8;
         }
         else if (Input.GetKeyDown(KeyCode.Alpha9))
         {
-            Difficulty = 9;
+            Amplitude = 9;
         }
     }
 
@@ -113,20 +123,37 @@ public class Settings : PersistentSingletonMonoBehaviour<Settings>
         }
     }
 
-    public int Difficulty
+    public int Amplitude
     {
-        get { return difficulty; }
+        get { return amplitude; }
         set
         {
-            if (difficulty == value)
+            if (amplitude == value)
                 return;
 
-            difficulty = value;
+            amplitude = value;
 
-            PlayerPrefs.SetInt("Difficulty", Difficulty);
+            PlayerPrefs.SetInt("Amplitude", Amplitude);
 
-            if (EventDifficultyChanged != null)
-                EventDifficultyChanged(difficulty);
+            if (EventAmplitudeChanged != null)
+                EventAmplitudeChanged(amplitude);
+        }
+    }
+
+    public int Transparency
+    {
+        get { return transparency; }
+        set
+        {
+            if (transparency == value)
+                return;
+
+            transparency = value;
+
+            PlayerPrefs.SetInt("Transparency", Transparency);
+
+            if (EventTransparencyChanged != null)
+                EventTransparencyChanged(transparency);
         }
     }
 }

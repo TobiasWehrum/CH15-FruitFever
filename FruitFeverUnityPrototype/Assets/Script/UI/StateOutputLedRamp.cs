@@ -31,7 +31,7 @@ public class StateOutputLedRamp : StateOutput
         var maxValue = images.Length;;
         if (!full)
         {
-            maxValue = Mathf.Min(Settings.Instance.Difficulty * 2 + 1, maxValue);
+            maxValue = Mathf.Min(Settings.Instance.Amplitude * 2 + 1, maxValue);
         }
 
         var amount = 1 + Mathf.FloorToInt((maxValue - 1) * value);
