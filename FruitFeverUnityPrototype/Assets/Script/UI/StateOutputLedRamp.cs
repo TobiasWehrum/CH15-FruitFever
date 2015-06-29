@@ -8,6 +8,9 @@ using UnityEngine.UI;
 public class StateOutputLedRamp : StateOutput
 {
     [SerializeField] private Image[] images;
+    [SerializeField] private bool full;
+    [SerializeField] private bool showOthersTransparently;
+    [SerializeField] private Color transparentColor;
 
     private bool initialized;
     private GameManager gameManager;
@@ -25,12 +28,21 @@ public class StateOutputLedRamp : StateOutput
             image.color = color;
         }
 
-        var maxValue = Mathf.Min(Settings.Instance.Difficulty * 2 + 1, images.Length);
+        var maxValue = images.Length;;
+        if (!full)
+        {
+            maxValue = Mathf.Min(Settings.Instance.Difficulty * 2 + 1, maxValue);
+        }
 
         var amount = 1 + Mathf.FloorToInt((maxValue - 1) * value);
         for (var i = 0; i < images.Length; i++)
         {
             images[i].enabled = i < amount;
+            if (!images[i].enabled && (i < maxValue) && showOthersTransparently)
+            {
+                images[i].enabled = true;
+                images[i].color = transparentColor;
+            }
         }
 
         initialized = true;
