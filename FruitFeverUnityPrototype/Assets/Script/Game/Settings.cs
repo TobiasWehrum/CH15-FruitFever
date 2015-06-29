@@ -7,16 +7,20 @@ public class Settings : PersistentSingletonMonoBehaviour<Settings>
 {
     public event Action<bool> EventMusicChanged;
     public event Action<bool> EventSfxChanged;
-    public event Action<int> EventAmplitudeChanged;
-    public event Action<int> EventTransparencyChanged;
+    public event Action EventAmplitudeChanged;
+    public event Action EventTransparencyChanged;
+    public event Action EventOrgansChanged;
 
     [SerializeField] private bool saveSettings;
     [SerializeField] private bool sfx;
     [SerializeField] private bool music;
     [SerializeField] private int amplitude = 3;
     [SerializeField] private int transparency = 4;
+    [SerializeField] private int organs = 3;
 
-    protected override void OnFirstLoadOrSwitch()
+    private int seed;
+
+    protected override void OnFirstLoad()
     {
         if (saveSettings)
         {
@@ -24,7 +28,10 @@ public class Settings : PersistentSingletonMonoBehaviour<Settings>
             music = UnityHelper.PlayerPrefsGetBool("Music", Music);
             amplitude = PlayerPrefs.GetInt("Amplitude", Amplitude);
             transparency = PlayerPrefs.GetInt("Transparency", Transparency);
+            organs = PlayerPrefs.GetInt("Organs", Organs);
         }
+
+        seed = UnityEngine.Random.Range(int.MinValue, int.MaxValue);
     }
 
     private void Update()
@@ -41,9 +48,16 @@ public class Settings : PersistentSingletonMonoBehaviour<Settings>
 
         if (Input.GetKeyDown(KeyCode.T))
         {
-            Transparency = Transparency - 1;
+            Transparency--;
             if (Transparency == -1)
                 Transparency = 4;
+        }
+
+        if (Input.GetKeyDown(KeyCode.O))
+        {
+            Organs++;
+            if (Organs == 4)
+                Organs = 1;
         }
 
         if (Input.GetKeyDown(KeyCode.F))
@@ -136,7 +150,7 @@ public class Settings : PersistentSingletonMonoBehaviour<Settings>
             PlayerPrefs.SetInt("Amplitude", Amplitude);
 
             if (EventAmplitudeChanged != null)
-                EventAmplitudeChanged(amplitude);
+                EventAmplitudeChanged();
         }
     }
 
@@ -153,7 +167,30 @@ public class Settings : PersistentSingletonMonoBehaviour<Settings>
             PlayerPrefs.SetInt("Transparency", Transparency);
 
             if (EventTransparencyChanged != null)
-                EventTransparencyChanged(transparency);
+                EventTransparencyChanged();
         }
+    }
+
+    public int Organs
+    {
+        get { return organs; }
+        set
+        {
+            if (organs == value)
+                return;
+
+            organs = value;
+
+            PlayerPrefs.SetInt("Organs", Organs);
+
+            if (EventOrgansChanged != null)
+                EventOrgansChanged();
+        }
+    }
+
+    public int Seed
+    {
+        get { return seed; }
+        set { seed = value; }
     }
 }

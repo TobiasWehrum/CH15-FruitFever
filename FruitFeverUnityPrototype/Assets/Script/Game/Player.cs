@@ -18,8 +18,8 @@ public class Player : MonoBehaviour
 
     public void Initialize(int index, int[] startValues, PlayerDisplay display)
     {
-        this.Index = index;
-        this.Display = display;
+        Index = index;
+        Display = display;
         values = (int[]) startValues.Clone();
 
         gameManager = GameManager.Instance;
@@ -55,7 +55,10 @@ public class Player : MonoBehaviour
     {
         for (var i = 0; i < add.Length; i++)
         {
-            values[i] = Mathf.Clamp(values[i] + add[i], -gameManager.StepCountEachSide, gameManager.StepCountEachSide);
+            if (i < Settings.Instance.Organs)
+            {
+                values[i] = Mathf.Clamp(values[i] + add[i], -gameManager.StepCountEachSide, gameManager.StepCountEachSide);
+            }
         }
         RefreshDisplay();
     }

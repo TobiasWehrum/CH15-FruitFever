@@ -47,9 +47,13 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         sfxManager = SfxManager.Instance;
         settings = Settings.Instance;
 
+        Random.seed = settings.Seed;
+
         difficultyDisplay.text = String.Format(difficultyDisplay.text, settings.Amplitude);
 
         pressToRestart.SetActive(false);
+
+        UseRulesetTemplate(rulesetTemplates.RandomElement());
 
         var startValues = new int[stateCount];
         do
@@ -57,6 +61,10 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
             for (var i = 0; i < startValues.Length; i++)
             {
                 startValues[i] = Random.Range(-StepCountEachSide, StepCountEachSide);
+                if (i >= settings.Organs)
+                {
+                    startValues[i] = 0;
+                }
             }
         }
         while (startValues.All(value => value == 0));
@@ -70,32 +78,35 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
             Players[i] = player;
         }
 
-        UseRulesetTemplate(rulesetTemplates.RandomElement());
-
-        var showTransparency = new bool[foodstuffs.Length];
-        for (var i = 0; i < settings.Transparency; i++)
+        if (settings.Transparency > 0)
         {
-            showTransparency[i] = true;
-        }
+            var showTransparency = new bool[foodstuffs.Length];
+            for (var i = 0; i < settings.Transparency; i++)
+            {
+                showTransparency[i] = true;
+            }
 
-        showTransparency.Shuffle();
+            showTransparency.Shuffle();
 
-        for (var i = 0; i < foodstuffs.Length; i++)
-        {
-            DisplayEffect(foodstuffs[i], ruleset[i], showTransparency[i]);
+            for (var i = 0; i < foodstuffs.Length; i++)
+            {
+                DisplayEffect(foodstuffs[i], ruleset[i], showTransparency[i]);
+            }
         }
     }
 
     private void OnEnable()
     {
-        settings.EventAmplitudeChanged += OnAmplitudeChanged;
-        settings.EventTransparencyChanged += OnTransparencyChanged;
+        settings.EventAmplitudeChanged += Restart;
+        settings.EventTransparencyChanged += Restart;
+        settings.EventOrgansChanged += Restart;
     }
 
     private void OnDisable()
     {
-        settings.EventAmplitudeChanged -= OnAmplitudeChanged;
-        settings.EventTransparencyChanged -= OnTransparencyChanged;
+        settings.EventAmplitudeChanged -= Restart;
+        settings.EventTransparencyChanged -= Restart;
+        settings.EventOrgansChanged -= Restart;
     }
 
     private void Update()
@@ -223,17 +234,13 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         sfxManager.PlayGameOver();
     }
 
-    private void OnAmplitudeChanged(int newDifficulty)
-    {
-        Restart();
-    }
-
-    private void OnTransparencyChanged(int newDifficulty)
-    {
-        Restart();
-    }
-
     private void Restart()
+    {
+        Settings.Instance.Seed = Random.Range(int.MinValue, int.MaxValue);
+        Application.LoadLevel(Application.loadedLevel);
+    }
+
+    private void RestartNoSeeding()
     {
         Application.LoadLevel(Application.loadedLevel);
     }
@@ -248,6 +255,9 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         {
             for (int i = 0; i < rules.Length; i++)
             {
+                if (i >= settings.Organs)
+                    continue;
+
                 var value = rules[i];
                 if (value == 0)
                     continue;

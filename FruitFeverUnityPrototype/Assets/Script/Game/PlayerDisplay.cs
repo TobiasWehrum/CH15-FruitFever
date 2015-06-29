@@ -32,6 +32,11 @@ public class PlayerDisplay : MonoBehaviourBase
         gameManager = GameManager.Instance;
         playerWonDisplay.SetActive(false);
 
+        for (var i = 0; i < outputs.Length; i++)
+        {
+            outputs[i].gameObject.SetActive(i < Settings.Instance.Organs);
+        }
+
         fruitsEatenFormatString = fruitsEatenDisplay.text;
         RefreshFruitsEatenDisplay();
 
