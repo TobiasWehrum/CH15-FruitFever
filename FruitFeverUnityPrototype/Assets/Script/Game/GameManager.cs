@@ -49,11 +49,20 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
 
         Random.seed = settings.Seed;
 
+        stateCount = settings.Organs;
+
         difficultyDisplay.text = String.Format(difficultyDisplay.text, settings.Amplitude);
 
         pressToRestart.SetActive(false);
 
-        UseRulesetTemplate(rulesetTemplates.RandomElement());
+        for (var i = (settings.Organs + 1); i < foodstuffs.Length; i++)
+        {
+            foodstuffs[i].gameObject.SetActive(false);
+        }
+
+        foodstuffs = foodstuffs.Where(foodstuff => foodstuff.gameObject.activeSelf).ToArray();
+
+        UseRulesetTemplate(rulesetTemplates[settings.Organs - 1]);
 
         var startValues = new int[stateCount];
         do
@@ -81,7 +90,7 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         if (settings.Transparency > 0)
         {
             var showTransparency = new bool[foodstuffs.Length];
-            for (var i = 0; i < settings.Transparency; i++)
+            for (var i = 0; i < Mathf.Min(settings.Transparency, foodstuffs.Length); i++)
             {
                 showTransparency[i] = true;
             }
@@ -191,6 +200,9 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
     public void EatFoodstuff(Player player, int foodstuffIndex)
     {
         if (GameOver)
+            return;
+
+        if (!foodstuffs[foodstuffIndex].gameObject.activeSelf)
             return;
 
         var originalFoodstuff = foodstuffs[foodstuffIndex];

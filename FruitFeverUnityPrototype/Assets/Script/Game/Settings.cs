@@ -48,16 +48,28 @@ public class Settings : PersistentSingletonMonoBehaviour<Settings>
 
         if (Input.GetKeyDown(KeyCode.T))
         {
-            Transparency--;
-            if (Transparency == -1)
-                Transparency = 4;
+            var newTransparency = Math.Min(Transparency, Organs + 1) - 1;
+            if (newTransparency < 0)
+                newTransparency = 4;
+
+            Transparency = newTransparency;
         }
 
         if (Input.GetKeyDown(KeyCode.O))
         {
-            Organs++;
-            if (Organs == 4)
-                Organs = 1;
+            var newOrgans = Organs + 1;
+            if (newOrgans > 3)
+            {
+                newOrgans = 1;
+                Transparency = Mathf.Max(Transparency - 2, 0);
+            }
+            else
+            {
+                if (Transparency > 0)
+                    Transparency++;
+            }
+
+            Organs = newOrgans;
         }
 
         if (Input.GetKeyDown(KeyCode.F))

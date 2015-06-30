@@ -37,6 +37,8 @@ public class PlayerDisplay : MonoBehaviourBase
             outputs[i].gameObject.SetActive(i < Settings.Instance.Organs);
         }
 
+        outputs = outputs.Where(output => output.gameObject.activeSelf).ToArray();
+
         fruitsEatenFormatString = fruitsEatenDisplay.text;
         RefreshFruitsEatenDisplay();
 
