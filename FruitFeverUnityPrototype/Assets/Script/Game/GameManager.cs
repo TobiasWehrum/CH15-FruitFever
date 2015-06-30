@@ -27,6 +27,7 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
     [SerializeField] private Sprite[] symbolsSliders;
     [SerializeField] private Sprite symbolArrowUp;
     [SerializeField] private Sprite symbolArrowDown;
+    [SerializeField] private PlayerDisplay goalDisplay;
 
     public Gradient StateColorDisplayRange { get { return stateColorDisplayRange; } }
     public int FoodstuffCount { get { return foodstuffs.Length; } }
@@ -69,7 +70,7 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         {
             for (var i = 0; i < startValues.Length; i++)
             {
-                startValues[i] = Random.Range(-StepCountEachSide, StepCountEachSide);
+                startValues[i] = Random.Range(1, StepCountEachSide) * MathUtil.RandomSign;
                 if (i >= settings.Organs)
                 {
                     startValues[i] = 0;
@@ -101,6 +102,14 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
             {
                 DisplayEffect(foodstuffs[i], ruleset[i], showTransparency[i]);
             }
+        }
+    }
+
+    private void Start()
+    {
+        if (goalDisplay != null)
+        {
+            goalDisplay.Refresh(new int[stateCount]);
         }
     }
 
@@ -248,7 +257,11 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
 
     private void Restart()
     {
-        Settings.Instance.Seed = Random.Range(int.MinValue, int.MaxValue);
+        if (settings.Randomized)
+        {
+            Settings.Instance.Seed = Random.Range(int.MinValue, int.MaxValue);
+        }
+
         Application.LoadLevel(Application.loadedLevel);
     }
 

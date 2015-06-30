@@ -11,6 +11,10 @@ public class StateOutputLedRamp : StateOutput
     [SerializeField] private bool full;
     [SerializeField] private bool showOthersTransparently;
     [SerializeField] private Color transparentColor;
+    [SerializeField] private bool targetedDisplay;
+    [SerializeField] private Color colorCorrect = Color.green;
+    [SerializeField] private Color colorWrong = Color.red;
+    [SerializeField] private Color colorTarget = Color.yellow;
 
     private bool initialized;
     private GameManager gameManager;
@@ -22,7 +26,14 @@ public class StateOutputLedRamp : StateOutput
             gameManager = GameManager.Instance;
         }
 
+        var isCorrect = Math.Abs(value - 0.5f) < 0.01f;
+
         var color = gameManager.StateColorDisplayRange.Evaluate(value);
+        if (targetedDisplay)
+        {
+            color = isCorrect ? colorCorrect : colorWrong;
+        }
+
         foreach (var image in images)
         {
             image.color = color;
@@ -43,6 +54,12 @@ public class StateOutputLedRamp : StateOutput
                 images[i].enabled = true;
                 images[i].color = transparentColor;
             }
+        }
+
+        if (targetedDisplay && !isCorrect)
+        {
+            images[maxValue / 2].enabled = true;
+            images[maxValue / 2].color = colorTarget;
         }
 
         initialized = true;

@@ -10,6 +10,7 @@ public class Settings : PersistentSingletonMonoBehaviour<Settings>
     public event Action EventAmplitudeChanged;
     public event Action EventTransparencyChanged;
     public event Action EventOrgansChanged;
+    public event Action EventRandomizedChanged;
 
     [SerializeField] private bool saveSettings;
     [SerializeField] private bool sfx;
@@ -17,6 +18,7 @@ public class Settings : PersistentSingletonMonoBehaviour<Settings>
     [SerializeField] private int amplitude = 3;
     [SerializeField] private int transparency = 4;
     [SerializeField] private int organs = 3;
+    [SerializeField] private bool randomized = true;
 
     private int seed;
 
@@ -29,6 +31,7 @@ public class Settings : PersistentSingletonMonoBehaviour<Settings>
             amplitude = PlayerPrefs.GetInt("Amplitude", Amplitude);
             transparency = PlayerPrefs.GetInt("Transparency", Transparency);
             organs = PlayerPrefs.GetInt("Organs", Organs);
+            randomized = UnityHelper.PlayerPrefsGetBool("Randomized", Randomized);
         }
 
         seed = UnityEngine.Random.Range(int.MinValue, int.MaxValue);
@@ -70,6 +73,12 @@ public class Settings : PersistentSingletonMonoBehaviour<Settings>
             }
 
             Organs = newOrgans;
+        }
+
+        if (Input.GetKeyDown(KeyCode.X))
+        {
+            Randomized = !Randomized;
+            Debug.Log("Randomization: " + randomized);
         }
 
         if (Input.GetKeyDown(KeyCode.F))
@@ -197,6 +206,23 @@ public class Settings : PersistentSingletonMonoBehaviour<Settings>
 
             if (EventOrgansChanged != null)
                 EventOrgansChanged();
+        }
+    }
+
+    public bool Randomized
+    {
+        get { return randomized; }
+        set
+        {
+            if (randomized == value)
+                return;
+
+            randomized = value;
+
+            UnityHelper.PlayerPrefsSetBool("Randomized", Randomized);
+
+            if (EventRandomizedChanged != null)
+                EventRandomizedChanged();
         }
     }
 
