@@ -57,6 +57,20 @@ public class ArduinoInput : MonoBehaviourBase
     private void OnDisable()
     {
         quit = true;
+
+        /*
+        if (stream.IsOpen)
+        {
+            var data = new byte[4];
+            data[0] = 100;
+            for (var i = 0; i < data.Length; i++)
+            {
+                data[i] = 99;
+            }
+            stream.Write(data, 0, data.Length);
+        }
+         */
+
         stream.Close();
         thread.Abort();
     }
@@ -168,5 +182,50 @@ public class ArduinoInput : MonoBehaviourBase
     {
         get { return (playerIndex == 0) ? "Left Player" : "Right Player"; }
     }
+
+    public int PlayerIndex
+    {
+        get { return playerIndex; }
+    }
+
 #endif
+
+    public void RefreshValues(int[] values)
+    {
+#if !UNITY_WEBPLAYER
+        if (!stream.IsOpen)
+            return;
+
+        var data = new byte[4];
+        data[0] = 100;
+        for (var i = 0; i < values.Length; i++)
+        {
+            data[i + 1] = (byte)(values[i] + gameManager.StepCountEachSide);
+        }
+        for (var i = values.Length; i < 3; i++)
+        {
+            data[i + 1] = 99;
+        }
+        try
+        {
+            stream.Write(data, 0, data.Length);
+        }
+        catch (Exception e)
+        {
+            Debug.LogException(e);
+        }
+#endif
+    }
+
+    public bool IsConnected
+    {
+        get
+        {
+#if UNITY_WEBPLAYER
+            return false,
+#else
+            return stream.IsOpen;
+#endif
+        }
+    }
 }
