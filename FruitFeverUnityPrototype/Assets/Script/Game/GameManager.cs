@@ -141,7 +141,7 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
             Application.Quit();
         }
 
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0))
         {
             Restart();
         }
