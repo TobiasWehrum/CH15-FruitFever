@@ -8,7 +8,7 @@ public class Player : MonoBehaviour
     public int Index;
     private string[] buttons;
     private GameManager gameManager;
-    private ArduinoInput arduinoInput;
+    public ArduinoInput ArduinoInput;
 
     public PlayerDisplay Display { get; private set; }
 
@@ -30,12 +30,12 @@ public class Player : MonoBehaviour
             buttons[foodstuffIndex] = string.Format("P{0}F{1}", index, foodstuffIndex);
         }
 
-        arduinoInput = FindObjectsOfType<ArduinoInput>().FirstOrDefault(input => input.PlayerIndex == Index);
+        ArduinoInput = FindObjectsOfType<ArduinoInput>().FirstOrDefault(input => input.PlayerIndex == Index);
     }
 
     private void Start()
     {
-        if (arduinoInput.IsConnected)
+        if (ArduinoInput.IsConnected)
         {
             Display.gameObject.SetActive(false);
         }
@@ -57,9 +57,9 @@ public class Player : MonoBehaviour
     {
         Display.Refresh(values);
 
-        if (arduinoInput != null)
+        if (ArduinoInput != null)
         {
-            arduinoInput.RefreshValues(values);
+            ArduinoInput.RefreshValues(values);
         }
     }
 

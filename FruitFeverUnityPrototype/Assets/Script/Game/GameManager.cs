@@ -28,6 +28,8 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
     [SerializeField] private Sprite symbolArrowUp;
     [SerializeField] private Sprite symbolArrowDown;
     [SerializeField] private PlayerDisplay goalDisplay;
+    [SerializeField] private GameObject letters;
+    [SerializeField] private RectTransform[] panels;
 
     public Gradient StateColorDisplayRange { get { return stateColorDisplayRange; } }
     public int FoodstuffCount { get { return foodstuffs.Length; } }
@@ -100,7 +102,7 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
 
             for (var i = 0; i < foodstuffs.Length; i++)
             {
-                DisplayEffect(foodstuffs[i], ruleset[i], showTransparency[i]);
+                DisplayEffect(panels[i], ruleset[i], showTransparency[i]);
             }
         }
     }
@@ -110,6 +112,11 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         if (goalDisplay != null)
         {
             goalDisplay.Refresh(new int[stateCount]);
+        }
+
+        if (Players[0].ArduinoInput.IsConnected)
+        {
+            letters.SetActive(false);
         }
     }
 
@@ -270,15 +277,20 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         Application.LoadLevel(Application.loadedLevel);
     }
 
-    private void DisplayEffect(Transform foodstuff, int[] rules, bool show)
+    private void DisplayEffect(RectTransform panel, int[] rules, bool show)
     {
-        var rectTransform = foodstuff.GetComponent<RectTransform>();
-        var xPosition = rectTransform.anchoredPosition.x + rectTransform.rect.center.x;
-        var yPosition = rectTransform.anchoredPosition.y + rectTransform.rect.yMin;
+        //var xPosition = rectTransform.anchoredPosition.x + rectTransform.rect.center.x;
+        //var yPosition = rectTransform.anchoredPosition.y + rectTransform.rect.yMin;
+
+        var xPosition = panel.anchoredPosition.x;
+        var yPosition = panel.anchoredPosition.y;
 
         if (show)
         {
-            for (int i = 0; i < rules.Length; i++)
+            var count = rules.Where((t, i) => i < settings.Organs).Count(value => value != 0);
+            yPosition += effectDisplayRowPrefab.GetComponent<RectTransform>().rect.height * count / 2f;
+
+            for (var i = 0; i < rules.Length; i++)
             {
                 if (i >= settings.Organs)
                     continue;
@@ -289,7 +301,7 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
 
                 var display = UnityHelper.InstantiatePrefab(effectDisplayRowPrefab);
                 var displayRectTransform = display.GetComponent<RectTransform>();
-                displayRectTransform.SetParent(foodstuff.parent.transform);
+                displayRectTransform.SetParent(panel.parent.transform);
                 displayRectTransform.localScale = Vector3.one;
                 displayRectTransform.anchoredPosition = new Vector2(xPosition, yPosition);
 
@@ -303,7 +315,7 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         {
             var display = UnityHelper.InstantiatePrefab(effectDisplayRowEmptyPrefab);
             var displayRectTransform = display.GetComponent<RectTransform>();
-            displayRectTransform.SetParent(foodstuff.parent.transform);
+            displayRectTransform.SetParent(panel.parent.transform);
             displayRectTransform.localScale = Vector3.one;
             displayRectTransform.anchoredPosition = new Vector2(xPosition, yPosition);
         }
