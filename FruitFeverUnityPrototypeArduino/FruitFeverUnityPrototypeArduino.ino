@@ -1,3 +1,21 @@
+void setup() {
+  setup_output();
+  setup_input();
+}
+
+void loop()
+{
+  loop_output();
+  loop_input();
+  //Serial.println(1);
+  //Serial.println(0);
+  delay(10);
+}
+
+// ------------------------------------------------
+// -------------------- OUTPUT --------------------
+// ------------------------------------------------
+
 #include <Adafruit_NeoPixel.h>
 #include <avr/power.h> // Comment out this line for non-AVR boards (Arduino Due, etc.)
 
@@ -34,7 +52,7 @@ uint32_t COLOR_CORRECT;
 uint32_t COLOR_INCORRECT;
 uint32_t COLOR_TARGET;
 
-void setup() {
+void setup_output() {
   // This is for Trinket 5V 16MHz, you can remove these three lines if you are not using a Trinket
 #if defined (__AVR_ATtiny85__)
   if (F_CPU == 16000000) clock_prescale_set(clock_div_1);
@@ -56,7 +74,7 @@ void setup() {
   strip.show();
 }
 
-void loop()
+void loop_output()
 {
   //testCycle();
   
@@ -114,4 +132,58 @@ void setValue(int value, int count, int pins[])
   strip.show();
 }
 
+// ------------------------------------------------
+// -------------------- INPUT ---------------------
+// ------------------------------------------------
 
+const int ANALOG_IN = A5;
+const int STATE_RESOLUTION = 50;
+
+const int FOOD_COUNT = 4;
+const char* FOODS[] = {"None", "Kiwi", "Blueberry", "Cucumber", "Cheese"};
+const int RANGES[] = {
+                  980, 1024,
+                  900, 979,
+                  600, 899,
+                  300, 599,
+                  0, 299,
+               };
+
+int _testing_food = 0;
+int _food_on_fork = -1;
+int _state_count = 0;
+
+void setup_input() {
+  Serial.begin(9600);
+}
+
+void loop_input() {
+  int sensorValue = analogRead(ANALOG_IN);
+
+  int current_food = 0;
+  for (int i = 0; i <= FOOD_COUNT; i++) {
+    int lower = i*2, upper = lower + 1;
+    if (sensorValue >= RANGES[lower] && sensorValue <= RANGES[upper]) {
+      current_food = i;
+      break;
+    }
+  }
+  if (_testing_food == current_food) {
+    _state_count++;
+  } else {
+    _state_count = 0;
+    _testing_food = current_food;
+  }
+
+  if (_state_count >= STATE_RESOLUTION && _testing_food != _food_on_fork) {
+    //this code compensates for occassional false readings when
+    //food is removed from the fork
+//    if (_food_on_fork != 0 && _testing_food != 0) {
+//      _food_on_fork = 0;
+//    } else {
+      _food_on_fork = _testing_food;
+//    }
+//    Serial.println(FOODS[_food_on_fork]);
+    Serial.println(_food_on_fork);
+  }
+}

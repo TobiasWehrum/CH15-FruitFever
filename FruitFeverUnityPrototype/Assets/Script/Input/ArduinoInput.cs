@@ -15,6 +15,10 @@ public class ArduinoInput : MonoBehaviourBase
     [SerializeField] private int comNumber = 2;
     [SerializeField] private int baudRate = 9600;
     [SerializeField] private int playerIndex;
+    [SerializeField] private bool rtsEnable;
+    [SerializeField] private bool dtsEnable;
+    [SerializeField] private int readTimeout = 10;
+    [SerializeField] private int writeTimeout = 10;
 
     private int readNumber;
     private bool dataUpdated;
@@ -24,7 +28,7 @@ public class ArduinoInput : MonoBehaviourBase
 
 #if !UNITY_WEBPLAYER
     private SerialPort stream;
-    private Thread thread;
+    //private Thread thread;
 
     private bool quit = false;
 
@@ -32,7 +36,11 @@ public class ArduinoInput : MonoBehaviourBase
     {
         //Debug.Log(SerialPort.GetPortNames().ToOneLineString());
         stream = new SerialPort("COM" + comNumber, baudRate);
-        thread = new Thread(ReadDataThread);
+        stream.RtsEnable = rtsEnable;
+        stream.DtrEnable = dtsEnable;
+        stream.ReadTimeout = readTimeout;
+        stream.WriteTimeout = writeTimeout;
+        //thread = new Thread(ReadDataThread);
 
         gameManager = GameManager.Instance;
     }
@@ -45,7 +53,7 @@ public class ArduinoInput : MonoBehaviourBase
             stream.Open();
             if (stream.IsOpen)
             {
-                thread.Start();
+                //thread.Start();
             }
         }
         catch (IOException exception)
@@ -72,11 +80,28 @@ public class ArduinoInput : MonoBehaviourBase
          */
 
         stream.Close();
-        thread.Abort();
+        //thread.Abort();
     }
 
     private void Update()
     {
+        try
+        {
+            var line = stream.ReadLine();
+            int newNumber;
+            if (int.TryParse(line, out newNumber))
+            {
+                if (newNumber != previousNumber)
+                {
+                    NumberChanged(previousNumber, newNumber);
+                    previousNumber = newNumber;
+                }
+            }
+        }
+        catch (Exception)
+        {
+        }
+        /*
         if (dataUpdated)
         {
             var number = 0;
@@ -92,6 +117,7 @@ public class ArduinoInput : MonoBehaviourBase
                 previousNumber = number;
             }
         }
+         */
     }
 
     private void NumberChanged(int from, int to)
@@ -127,7 +153,7 @@ public class ArduinoInput : MonoBehaviourBase
             // ...to another fruit (everything but 0..4 had already returned)
             else
             {
-                Debug.LogError(String.Format("Changed from fruit #{0} to #{1}?"));
+                Debug.LogError(String.Format("Changed from fruit #{0} to #{1}?", from, to));
             }
         }
 
@@ -157,11 +183,12 @@ public class ArduinoInput : MonoBehaviourBase
         gameManager.Players[playerIndex].Display.Signal = value;
     }
 
+    /*
     private void ReadDataThread()
     {
         while (!quit)
         {
-            Thread.Sleep(0);
+            Thread.Sleep(100);
             var line = stream.ReadLine();
             if (line.Length <= 0)
                 continue;
@@ -175,8 +202,11 @@ public class ArduinoInput : MonoBehaviourBase
                     dataUpdated = true;
                 }
             }
+
+            Thread.Sleep(0);
         }
     }
+     */
 
     private string PlayerName
     {
