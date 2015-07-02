@@ -142,8 +142,8 @@ const int STATE_RESOLUTION = 50;
 const int FOOD_COUNT = 4;
 const char* FOODS[] = {"None", "Kiwi", "Blueberry", "Cucumber", "Cheese"};
 const int RANGES[] = {
-                  980, 1024,
-                  900, 979,
+                  1020, 1024,
+                  900, 1019,
                   600, 899,
                   300, 599,
                   0, 299,
