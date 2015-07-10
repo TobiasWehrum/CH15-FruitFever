@@ -42,6 +42,8 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
     private Settings settings;
     private SfxManager sfxManager;
 
+    private Transform currentDisplay;
+
     public bool GameOver { get; private set; }
     public Player[] Players { get; private set; }
 
@@ -319,5 +321,22 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
             displayRectTransform.localScale = Vector3.one;
             displayRectTransform.anchoredPosition = new Vector2(xPosition, yPosition);
         }
+    }
+
+    public void SetPickedUpFruit(int fruitNumber)
+    {
+        if (currentDisplay != null)
+        {
+            Destroy(currentDisplay.gameObject);
+            currentDisplay = null;
+        }
+
+        if (fruitNumber == 0)
+            return;
+
+        currentDisplay = Instantiate(foodstuffs[fruitNumber - 1]);
+        var rectTransform = currentDisplay.GetComponent<RectTransform>();
+        rectTransform.SetParent(canvas.transform);
+        rectTransform.anchoredPosition = new Vector2(0, 100f);
     }
 }

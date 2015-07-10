@@ -167,6 +167,7 @@ public class ArduinoInput : MonoBehaviourBase
     private void FruitPickedUp(int fruitNumber)
     {
         Debug.Log(PlayerName + " has picked up fruit #" + fruitNumber);
+        gameManager.SetPickedUpFruit(fruitNumber);
     }
 
     private void FruitEaten(int fruitNumber)
@@ -174,6 +175,7 @@ public class ArduinoInput : MonoBehaviourBase
         Debug.Log(PlayerName + " has eaten fruit #" + fruitNumber);
 
         gameManager.ApplyValues(gameManager.Players[playerIndex], fruitNumber - 1);
+        gameManager.SetPickedUpFruit(0);
     }
 
     private void Signal(bool value)
